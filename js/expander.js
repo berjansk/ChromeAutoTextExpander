@@ -24,7 +24,7 @@ jQuery.noConflict();
 		, EVENT_NAME_LOAD = 'load.auto-expander'
 		, EVENT_NAME_INSERTED = 'DOMNodeInserted'
 		, OLD_STORAGE_KEY = 'autoTextExpanderShortcuts'
-		, INPUT_SELECTOR = 'div[contenteditable=true],textarea,input'
+		, INPUT_SELECTOR = 'div[contenteditable=true],textarea,input,html[contenteditable=true]'
 		, APP_ID_PRODUCTION = 'iibninhmiggehlcdolcilmhacighjamp'
 		, DEBUG = (chrome.i18n.getMessage('@@extension_id') !== APP_ID_PRODUCTION)
 	;
@@ -261,16 +261,23 @@ jQuery.noConflict();
 							else	//if ($textInput.is('[contenteditable]'))
 							{
 								// Get the focused / selected text node
-								var node = findFocusedNode();
-								var $textNode = $(node);
+								var node = document.activeElement; //findFocusedNode();
+								console.log(node.nodeName);
+								if(node.nodeName === "IFRAME"){
+									console.log("In iframe");
+									node = node.contentDocument.activeElement;
+								}
+								var $textNode = $($(node)[0].childNodes[0]);
 
 								// Find focused div instead of what's receiving events
 								$textInput = $(node.parentNode);
-
+								console.log($textNode);
+								console.log("NODE: ");
+								console.log($textInput);
 								// Get and process text
 								text = replaceText($textNode.text(),
 									shortcut, autotext, cursorPosition);
-
+console.log(text);
 								// If autotext is single line, simple case
 								if (autotext.indexOf('\n') < 0)
 								{
@@ -351,6 +358,7 @@ jQuery.noConflict();
 		if (win.getSelection) {
 			var selection = win.getSelection();
 			if (selection.rangeCount) {
+				if(document.activeElement);
 				return selection.getRangeAt(0).startContainer;
 			}
 		}
